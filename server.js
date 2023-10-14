@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const http = require('http').createServer(app);
+const io = require('socket.io')(http)
 
 mongoose.connect("mongodb://127.0.0.1:27017/myDatabase", {
     useNewUrlParser: true,
@@ -52,10 +52,24 @@ app.post('/messages', (req, res) => {
         });
 });
 
-io.on('connection', () => {
-    console.log('a user is connected')
-})
+io.on('connection', (socket) => {
+    console.log('User connected');
 
-const server = app.listen(port, () => {
+    socket.on('send-message', (data) => {
+        const message = new Message(data);
+
+        console.log('Received message:', data);
+        message.save()
+            .then(() => {
+                console.log('Message saved successfully');
+                io.emit('message', data);
+            })
+            .catch((err) => {
+                console.error('Error saving message:', err);
+            });
+    });
+});
+
+http.listen(port, () => {
     console.log('Server is running on port', port);
 });
