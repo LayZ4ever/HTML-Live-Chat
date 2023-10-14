@@ -52,8 +52,8 @@ app.post('/messages', (req, res) => {
         });
 });
 
-io.on('connection', () =>{
-    console.log('A user is connected')
+io.on('connection', () => {
+    console.log('a user is connected')
 })
 
 const server = app.listen(port, () => {
